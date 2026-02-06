@@ -1,25 +1,22 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Side {
-	Buy,
-	Sell,
-}
+use crate::lob::types::{OrderId, Side, Price, Timestamp};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LimitOrder {
-    pub order_id: u64,
+    pub order_id: OrderId,
     pub side: Side,
-    pub price: u64,
+    pub price: Price,
     pub qty: u64,
-	pub timestamp: u64,
+	pub timestamp: Timestamp,
 }
 
 impl LimitOrder {
-    #[inline]
+    #[inline(always)]
     pub fn new(
-		order_id: u64,
+		order_id: OrderId,
 		side: Side,
-		price: u64,
+		price: Price,
 		qty: u64,
-		timestamp: u64,
+		timestamp: Timestamp,
     ) -> Self {
         debug_assert!(qty > 0);
         debug_assert!(price > 0);
