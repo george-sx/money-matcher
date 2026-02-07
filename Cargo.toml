@@ -2,7 +2,9 @@
 members = [
   "crates/engine",
   "crates/client",
-  "crates/netlib",
+  "crates/moldudp64-core",
+  "crates/moldudp64-client",
+  "crates/moldudp64-engine",
 ]
 
 resolver = "2"
