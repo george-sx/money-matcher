@@ -1,7 +1,16 @@
+use bytes::Bytes;
+
 use crate::types::*;
 impl Packet {
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::new();
+        let mut capacity = 10 + 8 + 2;
+
+        for message in &self.message_blocks {
+            capacity += 2;
+            capacity += message.message_data.len();
+        }
+
+        let mut bytes = Vec::with_capacity(capacity);
 
         bytes.extend_from_slice(&self.header.session_id);
         bytes.extend_from_slice(&self.header.sequence_number);
@@ -37,7 +46,8 @@ impl Packet {
             bytes = &bytes[2..];
 
             let ml = u16::from_be_bytes(message_length) as usize;
-            let message_data = bytes[..ml].to_vec();
+            let message_data = Bytes::copy_from_slice(&bytes[..ml]);
+
             bytes = &bytes[ml..];
 
             message_blocks.push(MessageBlock {

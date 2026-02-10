@@ -8,7 +8,7 @@ use crate::types::*;
 fn test_message_block() {
     let message = "Hello, World!";
     let message_length: MessageLength = (message.len() as u16).to_be_bytes();
-    let message_data: MessageData = message.as_bytes().to_vec();
+    let message_data: MessageData = Bytes::copy_from_slice(message.as_bytes());
 
     println!("Original Message: {:?}", message);
     println!("Message Length: {:?}", message_length);
