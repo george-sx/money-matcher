@@ -1,18 +1,33 @@
-use crate::SessionTable;
-use crate::types::{SequenceNumber, SessionID};
+use crate::types::*;
 use std::collections::HashMap;
+pub struct SessionTable {
+    pub sessions: HashMap<SessionID, SequenceNumber>,
+    pub current_session: SessionID,
+}
 
 impl SessionTable {
     #[inline(always)]
     pub fn new() -> Self {
-        SessionTable {
+        let current_session = Self::make_session_id(1);
+
+        let mut table = SessionTable {
             sessions: HashMap::new(),
-        }
+            current_session,
+        };
+
+        table.add_session(current_session, (0 as u64).to_be_bytes());
+
+        table
     }
 
     #[inline(always)]
     pub fn generate_session_id(&mut self) -> SessionID {
-        let s = format!("MM{:08}", self.sessions.len() + 1);
+        Self::make_session_id(self.sessions.len() + 1)
+    }
+
+    #[inline(always)]
+    pub fn make_session_id(index: usize) -> SessionID {
+        let s = format!("MM{:08}", index);
         let mut session_id = [b' '; 10];
 
         session_id.copy_from_slice(s.as_bytes());
@@ -22,15 +37,31 @@ impl SessionTable {
     #[inline(always)]
     pub fn add_session(&mut self, session_id: SessionID, sequence_number: SequenceNumber) {
         self.sessions.insert(session_id, sequence_number);
+        self.current_session = session_id;
     }
 
     #[inline(always)]
-    pub fn get_sequence_number(&self, session_id: SessionID) -> Option<&SequenceNumber> {
-        self.sessions.get(&session_id)
+    pub fn get_sequence_number(&self, session_id: SessionID) -> SequenceNumber {
+        *self.sessions.get(&session_id).expect("Unknown Session")
+    }
+
+    #[inline(always)]
+    pub fn next_sequence(&self, session_id: SessionID) -> SequenceNumber {
+        let mut current_sequence: SequenceNumber = self.get_sequence_number(session_id);
+        let mut cur_u64: u64 = u64::from_be_bytes(current_sequence);
+        cur_u64 = cur_u64 + (1 as u64);
+
+        current_sequence = cur_u64.to_be_bytes();
+        current_sequence
     }
 
     #[inline(always)]
     pub fn remove_session(&mut self, session_id: &SessionID) {
         self.sessions.remove(session_id);
+    }
+
+    #[inline(always)]
+    pub fn get_current_session(&self) -> SessionID {
+        self.current_session
     }
 }

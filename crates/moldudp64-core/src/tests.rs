@@ -1,7 +1,8 @@
 use crate::Header;
 use crate::MessageBlock;
 use crate::Packet;
-use crate::SessionTable;
+use crate::sessions::SessionTable;
+use crate::types::*;
 
 #[test]
 fn test_ids() {
@@ -48,7 +49,7 @@ fn test_packet() {
             sequence_number: header.sequence_number,
             message_count: header.message_count,
         },
-        messages: m,
+        message_blocks: m,
     };
 
     let bytes: Vec<u8> = packet.to_bytes();
