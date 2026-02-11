@@ -7,8 +7,8 @@ pub struct SessionTable {
 
 impl SessionTable {
     #[inline(always)]
-    pub fn new() -> Self {
-        let current_session = Self::make_session_id(1);
+    pub fn new() -> SessionTable {
+        let current_session = SessionTable::make_session_id(1);
 
         let mut table = SessionTable {
             sessions: HashMap::new(),
@@ -41,18 +41,14 @@ impl SessionTable {
     }
 
     #[inline(always)]
-    pub fn get_sequence_number(&self, session_id: SessionID) -> SequenceNumber {
-        *self.sessions.get(&session_id).expect("Unknown Session")
-    }
+    pub fn next_sequence(&mut self, session_id: SessionID) -> SequenceNumber {
+        let sequence = self.sessions.get_mut(&session_id).expect("Unknown Session");
 
-    #[inline(always)]
-    pub fn next_sequence(&self, session_id: SessionID) -> SequenceNumber {
-        let mut current_sequence: SequenceNumber = self.get_sequence_number(session_id);
-        let mut cur_u64: u64 = u64::from_be_bytes(current_sequence);
-        cur_u64 = cur_u64 + (1 as u64);
+        let mut cur_u64 = u64::from_be_bytes(*sequence);
+        cur_u64 += 1;
+        *sequence = cur_u64.to_be_bytes();
 
-        current_sequence = cur_u64.to_be_bytes();
-        current_sequence
+        *sequence
     }
 
     #[inline(always)]

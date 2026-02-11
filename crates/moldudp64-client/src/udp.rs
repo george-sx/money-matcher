@@ -1,20 +1,46 @@
 use crate::MOLDCONSUMER;
-use tokio::net::UdpSocket;
+use moldudp64_core::types::Packet;
 use std::io;
+use tokio::net::UdpSocket;
 
 impl MOLDCONSUMER {
-	pub async fn initialize(bind_addr: &str) -> io::Result<Self> {
-		let socket = UdpSocket::bind(bind_addr).await?;
-		println!("Initialized MOLDCONSUMER on {}", bind_addr);
-		Ok(MOLDCONSUMER { socket })
-	}
-
-	pub async fn consume(&self) -> io::Result<()> {
-		let mut buf = [0; 1024];
-		loop {
-			let (len, addr) = self.socket.recv_from(&mut buf).await?;
-			println!("{:?} bytes received from {:?}", len, addr);
-		}
+    pub async fn initialize(bind_addr: &str) -> io::Result<Self> {
+        let socket = UdpSocket::bind(bind_addr).await?;
+        println!("Initialized MOLDCONSUMER on {}", bind_addr);
+        Ok(MOLDCONSUMER { socket })
     }
 
+    pub async fn consume(&self) -> io::Result<()> {
+        let mut buf = [0; 1024];
+        loop {
+            let (len, addr) = self.socket.recv_from(&mut buf).await?;
+            println!("{:?} bytes received from {:?}", len, addr);
+
+            let packet = Packet::from_bytes(&buf);
+
+            let header = packet.header;
+            println!(
+                "Header Session ID: {:?} {:?}",
+                std::str::from_utf8(&header.session_id).unwrap(),
+                header.session_id
+            );
+            println!(
+                "Header Sequence Number: {:?} {:?}",
+                u64::from_be_bytes(header.sequence_number) as usize,
+                header.sequence_number
+            );
+            let message_count = u16::from_be_bytes(header.message_count) as usize;
+            println!(
+                "Header Message Count: {:?} {:?}",
+                message_count, header.message_count
+            );
+            let message_blocks = packet.message_blocks;
+            let mut k = 1;
+            for msg in message_blocks {
+                let message: String = std::str::from_utf8(&msg.message_data).unwrap().to_string();
+                println!("Message {:?}: {:?}", k, message);
+                k += 1;
+            }
+        }
+    }
 }
