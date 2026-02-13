@@ -11,7 +11,7 @@ impl MOLDCONSUMER {
     }
 
     pub async fn consume(&self) -> io::Result<()> {
-        let mut buf = [0; 1024];
+        let mut buf = [0; 2048];
         loop {
             let (len, addr) = self.socket.recv_from(&mut buf).await?;
             println!("{:?} bytes received from {:?}", len, addr);
