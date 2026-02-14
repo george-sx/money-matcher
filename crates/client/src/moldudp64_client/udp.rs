@@ -56,7 +56,7 @@ impl MoldConsumer {
                 );
 
                 match message_type {
-                    b'Z' => {
+                    b'b' => {
                         let nanos =
                             u128::from_be_bytes(msg.message_data[1..17].try_into().unwrap());
 

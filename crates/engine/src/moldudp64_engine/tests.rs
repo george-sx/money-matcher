@@ -19,13 +19,13 @@ mod tests {
                 .as_nanos();
 
             let mut msg = BytesMut::with_capacity(17);
-            msg.put_u8(b'Z');
+            msg.put_u8(b'b');
             msg.extend_from_slice(&nanos.to_be_bytes());
 
             mold.enqueue_message(msg.freeze()).await?;
 
             let mut msg = BytesMut::with_capacity(17);
-            msg.put_u8(b'B');
+            msg.put_u8(b'z');
             msg.extend_from_slice(&nanos.to_be_bytes());
 
             mold.enqueue_message(msg.freeze()).await?;
