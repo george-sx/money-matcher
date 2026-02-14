@@ -10,23 +10,23 @@ pub type MessageData = Bytes;
 pub type MessageBlocks = Vec<MessageBlock>;
 
 #[repr(C)]
-#[derive(IntoBytes, FromBytes, Immutable, KnownLayout)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, IntoBytes, FromBytes, Immutable, KnownLayout)]
 pub struct Header {
     pub session_id: SessionID,
     pub sequence_number: SequenceNumber,
     pub message_count: MessageCount,
 }
-
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageBlock {
     pub message_length: MessageLength,
     pub message_data: MessageData,
 }
-
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Packet {
     pub header: Header,
     pub message_blocks: MessageBlocks,
 }
-
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RequestPacket {
     pub session_id: SessionID,
     pub sequence_number: SequenceNumber,
