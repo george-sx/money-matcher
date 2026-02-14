@@ -1,3 +1,4 @@
+mod tests;
 mod udp;
 
 pub struct MoldConsumer {
